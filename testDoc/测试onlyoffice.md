@@ -5,6 +5,10 @@
 
 onlyoffice希望不存放在根目录，文件访问路径需要加上前缀，比如`/cache/files/data/`需要变成`/xxx/cache/files/data/`
 
+# 项目地址
+
+[Docker-Onlyoffice-Monorepo](https://github.com/hhk94/Docker-Onlyoffice-Monorepo)】
+
 # 1.结论 - 放在最前
 1. onlyoffice生成文件路径并不是真实访问路径而是映射路径
 2. 本地存储为`/cache/`,minio存储为`/storage-cache/`,两者都为硬编码写在onlyoffice中，无法通过配置修改；
