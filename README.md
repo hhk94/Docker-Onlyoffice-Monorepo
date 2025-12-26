@@ -3,7 +3,6 @@
 这是一个基于 Docker 容器化的 OnlyOffice 文档协作平台，集成了 MinIO 对象存储、PostgreSQL 数据库、Redis 缓存和 RabbitMQ 消息队列，提供完整的在线文档编辑、协作和存储解决方案。
 
 ## node版本
-
 node -v
 v22.21.1
 
@@ -62,8 +61,13 @@ v22.21.1
    # 或使用标准 Docker Compose 命令
    docker-compose up -d
    ```
+3. nodejs需要编译，如果修改了node文件，重启服务需要
+    ```bash
+   
+   docker-compose up -d --build
+   ```
 
-3. **验证服务启动**
+4. **验证服务启动**
 
    服务启动后，可以通过以下地址访问：
    - OnlyOffice 文档服务器: http://localhost:28080
@@ -73,7 +77,7 @@ v22.21.1
    - Redis: localhost:26379
    - RabbitMQ 管理界面: http://localhost:45672
 
-4. 验证服务状态运行测试脚本
+5. 验证服务状态运行测试脚本
 
    项目包含一个测试脚本 `test_services.ps1`，用于验证所有服务是否正常运行。
 
