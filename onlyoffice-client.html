@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OnlyOffice 文档编辑</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .upload-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        #fileInput {
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #editor {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #ccc;
+        }
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #e8f5e9;
+            border-radius: 4px;
+            display: none;
+        }
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+    </style>
+    <!-- 动态加载OnlyOffice API -->
+    <script type="text/javascript">
+      // 配置主机IP地址 - 这里可以从URL参数或其他方式获取
+      // 注意：HTML文件无法直接读取.env文件，这里使用硬编码作为默认值
+      // 在实际部署中，可以通过服务器端渲染或构建时替换这个值
+      const HOST_IP = 'localhost'; // 从.env文件中的HOST_IP获取
+      
+      // 动态创建并加载OnlyOffice API脚本
+      const apiScript = document.createElement('script');
+      apiScript.type = 'text/javascript';
+      apiScript.src = `http://${HOST_IP}:8080/web-apps/apps/api/documents/api.js`;
+      document.head.appendChild(apiScript);
+      
+      // 全局配置对象，供其他脚本使用
+      window.onlyOfficeConfig = {
+        hostIp: HOST_IP,
+        onlyOfficePort: '8080',
+        nodeServerPort: '8000',
+        htmlServerPort: '8081'
+      };
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>OnlyOffice 文档编辑</h1>
+        
+        <div class="upload-section">
+            <h2>上传文档</h2>
+            <input type="file" id="fileInput" accept=".docx,.doc,.xlsx,.xls,.pptx,.ppt,.pdf">
+            <button id="uploadBtn">上传并编辑</button>
+            <div id="status" class="status"></div>
+        </div>
+        
+        <div id="editorSection" style="display: none;">
+            <h2>文档编辑</h2>
+            <div id="editor"></div>
+        </div>
+    </div>
+
+    <script>
+        // 配置
+        const config = {
+            documentServerUrl: `http://${window.onlyOfficeConfig.hostIp}:${window.onlyOfficeConfig.onlyOfficePort}/`,
+            documentType: '',
+            documentUrl: '',
+            documentKey: '',
+            fileInput: null,
+            uploadUrl: `http://${window.onlyOfficeConfig.hostIp}:${window.onlyOfficeConfig.nodeServerPort}/upload`, // Node.js上传接口
+            editor: null
+        };
+
+        // 初始化
+        function init() {
+            config.fileInput = document.getElementById('fileInput');
+            document.getElementById('uploadBtn').addEventListener('click', handleUpload);
+        }
+
+        // 处理文件上传
+        function handleUpload() {
+            const file = config.fileInput.files[0];
+            if (!file) {
+                showStatus('请选择一个文件', true);
+                return;
+            }
+
+            showStatus('正在上传文件...');
+            
+            // 创建FormData对象
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            // 发送到我们的文件服务器，使用统一的IP地址
+            fetch(`http://${window.onlyOfficeConfig.hostIp}:${window.onlyOfficeConfig.nodeServerPort}/upload`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('上传失败: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                const fileName = file.name;
+                const fileExtension = fileName.split('.').pop().toLowerCase();
+                
+                // 设置文档类型
+                config.documentType = getDocumentType(fileExtension);
+                if (!config.documentType) {
+                    showStatus('不支持的文件类型', true);
+                    return;
+                }
+                
+                // 使用服务器返回的URL，确保是完整路径
+                config.documentKey = data.documentKey;
+                // 使用节点服务器的IP替代node-backend，确保URL可访问
+                config.documentUrl =`http://${window.onlyOfficeConfig.hostIp}:${window.onlyOfficeConfig.nodeServerPort}/downloadfile/${data.documentKey}`;
+                config.jwtToken = data.jwtToken;
+                console.log('数据响应:', data);
+                console.log('配置信息:', config);
+                // 显示编辑器
+                showStatus('文件上传成功，正在加载编辑器...');
+                showEditor();
+            })
+            .catch(error => {
+                showStatus('上传文件时出错: ' + error.message, true);
+                console.error('上传错误:', error);
+            });
+        }
+
+        // 根据文件扩展名获取文档类型
+        function getDocumentType(extension) {
+            const typeMap = {
+                'docx': 'word',
+                'doc': 'word',
+                'xlsx': 'cell',
+                'xls': 'cell',
+                'pptx': 'presentation',
+                'ppt': 'presentation',
+                'pdf': 'pdf'
+            };
+            return typeMap[extension] || null;
+        }
+
+        // 显示编辑器
+    async   function showEditor() {
+            document.getElementById('editorSection').style.display = 'block';
+            
+            // 生成OnlyOffice所需的JWT令牌参数
+            // 注意：此处我们不需要在前端生成完整JWT令牌，因为OnlyOffice需要在其配置中看到token参数
+            // 后端会在请求时生成并提供正确的令牌
+            const editorConfig = {
+                "document": {
+                    "fileType": config.fileInput.files[0].name.split('.').pop().toLowerCase(),
+                    "key": config.documentKey,
+                    "title": config.fileInput.files[0].name,
+                    "url": config.documentUrl,
+                    // 明确指定下载URL为Node.js服务器的/downloadfile接口
+                    "downloadUrl": config.documentUrl,
+                    // 【关键3】指定存储类型为自定义，告诉OnlyOffice不要用自身存储
+                    "storageType": "Custom",
+                    // 【关键4】添加文件的最后修改时间（防止OnlyOffice缓存旧地址）
+                    "modified": new Date().toISOString(),
+                    "key": config.documentKey,
+                },
+                "documentType": config.documentType,
+
+                "editorConfig": {
+                    "key": config.jwtToken,
+                    // 设置callbackURL以便OnlyOffice可以保存文档到Node.js服务器
+                    "callbackUrl": `http://${window.onlyOfficeConfig.hostIp}:${window.onlyOfficeConfig.nodeServerPort}/callback`,
+                    "user": {
+                        "id": "user-1",
+                        "name": "用户"
+                    },
+                    "mode": "edit",
+                    "lang": "zh-CN",
+                    // 添加服务配置确保使用正确的URL
+                    "services": {
+                        "UrlConverter": {
+                            "url": "",
+                            "convCallbackUrl": ""
+                        }
+                    },
+                     // 【关键6】允许编辑器直接下载/访问外部文件
+                    "permissions": {
+                        "download": true,
+                        "edit": true,
+                        "access": true
+                    },
+                     // 【关键7】添加来源地址，解决跨域/源验证问题
+                    "origin": `http://${window.onlyOfficeConfig.hostIp}:${window.onlyOfficeConfig.htmlServerPort}` ,// 你的HTML页面服务地址（8081端口）
+                    // "token": config.jwtToken
+                },
+                // 【关键8】添加token，用于OnlyOffice安全验证
+                // 注意：根据OnlyOffice文档，当启用token验证时，这里需要包含token参数
+                "height": "600px",
+                "width": "100%",
+                // 【关键9】禁用OnlyOffice的自动代理（新增）
+                "disableBrowserCache": true
+            };
+            // 使用安全的UTF-8编码生成JWT
+            editorConfig.token = await createJWT(config, 'my_secret_key_for_onlyoffice');
+            // 初始化编辑器
+            console.log('editorConfig:', editorConfig);
+            config.editor = new DocsAPI.DocEditor("editor", editorConfig);
+            showStatus('编辑器加载完成，可以开始编辑文档');
+        }
+
+// 修复的JWT生成函数（支持UTF-8字符）
+    async function createJWT(json, secret) {
+        const header = {
+            typ: "JWT",
+            alg: "HS256"
+        };
+
+        // 使用TextEncoder进行UTF-8编码
+        const encoder = new TextEncoder();
+        const headerData = encoder.encode(JSON.stringify(header));
+        const payloadData = encoder.encode(JSON.stringify(json));
+
+        // Base64编码（URL安全）
+        const base64EncodeURL = bytes => {
+            return btoa(String.fromCharCode(...bytes))
+                    .replace(/\+/g, '-')
+                    .replace(/\//g, '_')
+                    .replace(/=/g, '');
+        };
+
+        const encodedHeader = base64EncodeURL(headerData);
+        const encodedPayload = base64EncodeURL(payloadData);
+
+        // 生成签名
+        const algorithm = {name: "HMAC", hash: "SHA-256"};
+        const key = await crypto.subtle.importKey(
+                "raw",
+                encoder.encode(secret),
+                algorithm,
+                false,
+                ["sign"]
+        );
+
+        const signature = await crypto.subtle.sign(
+                algorithm.name,
+                key,
+                encoder.encode(`${encodedHeader}.${encodedPayload}`)
+        );
+
+        return `${encodedHeader}.${encodedPayload}.${base64EncodeURL(new Uint8Array(signature))}`;
+    }
+
+
+
+        // 显示状态信息
+        function showStatus(message, isError = false) {
+            const statusElement = document.getElementById('status');
+            statusElement.textContent = message;
+            statusElement.style.display = 'block';
+            
+            if (isError) {
+                statusElement.classList.add('error');
+            } else {
+                statusElement.classList.remove('error');
+            }
+        }
+
+        // 页面加载完成后初始化
+        window.onload = init;
+    </script>
+</body>
+</html>
+
+
+

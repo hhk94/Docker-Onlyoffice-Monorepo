@@ -1,0 +1,84 @@
+{
+  "services": {
+    "CoAuthoring": {
+      "sql": {
+        "type": "postgres",
+        "dbHost": "postgres",
+        "dbPort": "5432",
+        "dbName": "onlyoffice",
+        "dbUser": "onlyoffice",
+        "dbPass": "onlyoffice_pass",
+        "request-filtering": {
+          "allowPrivateIPs": true,
+          "allowInternalUrls": true,
+          "allowedUrls": ["http://localhost:8000", "http://127.0.0.1:8000", "http://172.18.127.227:8000","http://172.18.127.227:8080","http://localhost:8080", "http://127.0.0.1:8080", "http://node-backend:8000"]
+        }
+      },
+      "server": {
+        "allowPrivateIPAddress": true,
+        "allowPrivateHost": true
+      },
+      "token": {
+        "enable": {
+          "request": {
+            "inbox": false,
+            "outbox": false
+          },
+          "browser": false
+        },
+        "inbox": {
+          "header": "AuthorizationJwt",
+          "inBody": false
+        },
+        "outbox": {
+          "header": "AuthorizationJwt",
+          "inBody": false
+        }
+      },
+      "secret": {
+        "browser": {
+          "string": "my_secret_key_for_onlyoffice"
+        },
+        "inbox": {
+          "string": "my_secret_key_for_onlyoffice"
+        },
+        "outbox": {
+          "string": "my_secret_key_for_onlyoffice"
+        },
+        "session": {
+          "string": "my_secret_key_for_onlyoffice"
+        }
+      }
+    }
+  },
+  "rabbitmq": {
+    "url": "amqp://guest:guest@rabbitmq:5672"
+  },
+  "wopi": {
+    "enable": false,
+    "privateKey": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCMJSK9QD6PqkG+\nvPj0it4IEku3vvhzvwr7ippB+VpBqQ88Ez/XOftbv8JeRhKhwxBpJB3X6KgNMA79\nPr2GE2garo7myNtoyr12xIHjLGJTPtl3Op/K7tKT70UTECvBgrBzJw6N0PyIwngK\naOFDcfd2fT9z18uewUtBfLXi6sm/nZMDMsz6I4Ly8ra7xJ7SvIzt9n9Sy7ZW3Epa\nrvJtiscjZk15+0BMR5F/MCXgth6QBIjSTUlqj05vVPolwTR9bwGWE0xF+kd0WRaR\npBJgZPXp6BQuGYjzTWtJLYEw1YHKkaysDgs3VR6/BxlR2H1JUkoQf0coi+Ssdm5l\n5F802ee1AgMBAAECggEAAPJUmb1QBDMSM/JIJt6z6+Szvjn7/kwmttbo09PrWCYx\nhCZdIrGxkPJqowMLfSw5dXxY90G1tjZs435Y/rQthStIq9EPf6sJkekh4iGanb/+\n7V89VRGSj+KTL4hxwzeEGZhZ8NCd5A6W4PsfCmWVVlI3litkT140M+0JDXn92DLQ\nYXX8iHrD7jO9P2Oa7pmwb6ngvGyix6AGIz+6FX35CtSe/WczqtD1SsM3AYgdj1eH\nCpyKFk+8A0I/sMsG34qryvzZKld42CgqkLZC5AAD3Zzz3c1FnXulj3y+I8hcQfz2\nGEUTZQ1KrqbBqp5YW0cMs3024/dq6NdDzatsZ0tUwQKBgQDCVd95Y6TyhyBZzD4v\nrldyK5atM5tT/WewRh01OnDb62SsSHtmAnisBKV48nQVVujqB5EktY0fZJN7HGEA\nPQAWteEKKd+kWx5dQ0XKqtbJmaIkmJqVz9VCdohqQLTk65FtVCwhcon9Fmw6xkec\nkgXy1pBLh24gYuwuAaqzdu0ltwKBgQC4nU5RZAIutH6iEPWrjayZ+himYXreV9WC\nmON5aQtYP4a+3bnWCXJNvI/SSDY5WBftv2k7u6p6a2AtFa8MNkmE54lNX5dAnUV8\np1YHLCoCgSY8pEJfChCdweQmDkvFJscjpLMSLUOTCnjB/a4AKcMZnRETnwKoYPUP\nRdQ7IlG98wKBgGUrW2nQjCCOZDMbdwxPkMqpEoocobJ5668C8VWylOqIgyKFoWgb\nxUKYMKTkY7ZwRlT/l3oq4csECxs+TOlY2GD6Uqt93SWtIgOfcAfwJF1Tk+vFXkS7\nq+Qr3RyjjwjV8iGeflLzVA7jy3hVnRZPlrUzKm+Hk7dciGPzDjDbqt3FAoGALuY/\nhCu85jKSTQez8X4PUBqZ8oKnHR8BLak7eJd3+1ZAG/LmB/rkX908SDZyGAVKJurO\niA830tu+VhXBH4AXEz1iwxY6rX6GrZExKKdOkM5QcW1lMxGygPFFzWkqVI5yXpqz\npzV6ijtJzDZu4rm5R6OAOBTYLwBaoSOjM9aXH4MCgYEAntI0KTFFVEggCrtdJ75V\nXUEpLa5CXNhXZT7RdxRY/iTYHkPCg9B5Xoa+Tzv0k6kNOLVE/xGJ673y5d7UtoY3\n/GcUBOq0jXJc++J9KmSm0I2x+YR5g1gG5LYPjeofcgOQ6LW9x+cTuarXy3zHQ1NL\njWQqMi4Hc+9lEevDTeDenjE=\n-----END PRIVATE KEY-----\n",
+    "privateKeyOld": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCMJSK9QD6PqkG+\nvPj0it4IEku3vvhzvwr7ippB+VpBqQ88Ez/XOftbv8JeRhKhwxBpJB3X6KgNMA79\nPr2GE2garo7myNtoyr12xIHjLGJTPtl3Op/K7tKT70UTECvBgrBzJw6N0PyIwngK\naOFDcfd2fT9z18uewUtBfLXi6sm/nZMDMsz6I4Ly8ra7xJ7SvIzt9n9Sy7ZW3Epa\nrvJtiscjZk15+0BMR5F/MCXgth6QBIjSTUlqj05vVPolwTR9bwGWE0xF+kd0WRaR\npBJgZPXp6BQuGYjzTWtJLYEw1YHKkaysDgs3VR6/BxlR2H1JUkoQf0coi+Ssdm5l\n5F802ee1AgMBAAECggEAAPJUmb1QBDMSM/JIJt6z6+Szvjn7/kwmttbo09PrWCYx\nhCZdIrGxkPJqowMLfSw5dXxY90G1tjZs435Y/rQthStIq9EPf6sJkekh4iGanb/+\n7V89VRGSj+KTL4hxwzeEGZhZ8NCd5A6W4PsfCmWVVlI3litkT140M+0JDXn92DLQ\nYXX8iHrD7jO9P2Oa7pmwb6ngvGyix6AGIz+6FX35CtSe/WczqtD1SsM3AYgdj1eH\nCpyKFk+8A0I/sMsG34qryvzZKld42CgqkLZC5AAD3Zzz3c1FnXulj3y+I8hcQfz2\nGEUTZQ1KrqbBqp5YW0cMs3024/dq6NdDzatsZ0tUwQKBgQDCVd95Y6TyhyBZzD4v\nrldyK5atM5tT/WewRh01OnDb62SsSHtmAnisBKV48nQVVujqB5EktY0fZJN7HGEA\nPQAWteEKKd+kWx5dQ0XKqtbJmaIkmJqVz9VCdohqQLTk65FtVCwhcon9Fmw6xkec\nkgXy1pBLh24gYuwuAaqzdu0ltwKBgQC4nU5RZAIutH6iEPWrjayZ+himYXreV9WC\nmON5aQtYP4a+3bnWCXJNvI/SSDY5WBftv2k7u6p6a2AtFa8MNkmE54lNX5dAnUV8\np1YHLCoCgSY8pEJfChCdweQmDkvFJscjpLMSLUOTCnjB/a4AKcMZnRETnwKoYPUP\nRdQ7IlG98wKBgGUrW2nQjCCOZDMbdwxPkMqpEoocobJ5668C8VWylOqIgyKFoWgb\nxUKYMKTkY7ZwRlT/l3oq4csECxs+TOlY2GD6Uqt93SWtIgOfcAfwJF1Tk+vFXkS7\nq+Qr3RyjjwjV8iGeflLzVA7jy3hVnRZPlrUzKm+Hk7dciGPzDjDbqt3FAoGALuY/\nhCu85jKSTQez8X4PUBqZ8oKnHR8BLak7eJd3+1ZAG/LmB/rkX908SDZyGAVKJurO\niA830tu+VhXBH4AXEz1iwxY6rX6GrZExKKdOkM5QcW1lMxGygPFFzWkqVI5yXpqz\npzV6ijtJzDZu4rm5R6OAOBTYLwBaoSOjM9aXH4MCgYEAntI0KTFFVEggCrtdJ75V\nXUEpLa5CXNhXZT7RdxRY/iTYHkPCg9B5Xoa+Tzv0k6kNOLVE/xGJ673y5d7UtoY3\n/GcUBOq0jXJc++J9KmSm0I2x+YR5g1gG5LYPjeofcgOQ6LW9x+cTuarXy3zHQ1NL\njWQqMi4Hc+9lEevDTeDenjE=\n-----END PRIVATE KEY-----\n",
+    "publicKey": "BgIAAACkAABSU0ExAAgAAAEAAQC159k0X+Rlbnas5IsoR38QSlJJfdhRGQe/HlU3Cw6srJHKgdUwgS1Ja03ziBkuFOjp9WRgEqSRFll0R/pFTBOWAW99NMEl+lRvTo9qSU3SiASQHrbgJTB/kUdMQPt5TWYjx4pt8q5aStxWtstSf/btjLzSnsS7tvLygiP6zDIDk52/yeritXxBS8Gey9dzP31293FD4WgKeMKI/NCNDidzsILBKxATRe+T0u7Knzp32T5TYizjgcR2vcpo28jmjq4aaBOGvT79DjANqOjXHSRpEMOhEkZewr9b+znXPxM8D6lBWvlBmor7Cr9z+L63SxII3or0+Ly+QaqPPkC9IiWM",
+    "publicKeyOld": "BgIAAACkAABSU0ExAAgAAAEAAQC159k0X+Rlbnas5IsoR38QSlJJfdhRGQe/HlU3Cw6srJHKgdUwgS1Ja03ziBkuFOjp9WRgEqSRFll0R/pFTBOWAW99NMEl+lRvTo9qSU3SiASQHrbgJTB/kUdMQPt5TWYjx4pt8q5aStxWtstSf/btjLzSnsS7tvLygiP6zDIDk52/yeritXxBS8Gey9dzP31293FD4WgKeMKI/NCNDidzsILBKxATRe+T0u7Knzp32T5TYizjgcR2vcpo28jmjq4aaBOGvT79DjANqOjXHSRpEMOhEkZewr9b+znXPxM8D6lBWvlBmor7Cr9z+L63SxII3or0+Ly+QaqPPkC9IiWM",
+    "modulus": "jCUivUA+j6pBvrz49IreCBJLt774c78K+4qaQflaQakPPBM/1zn7W7/CXkYSocMQaSQd1+ioDTAO/T69hhNoGq6O5sjbaMq9dsSB4yxiUz7Zdzqfyu7Sk+9FExArwYKwcycOjdD8iMJ4CmjhQ3H3dn0/c9fLnsFLQXy14urJv52TAzLM+iOC8vK2u8Se0ryM7fZ/Usu2VtxKWq7ybYrHI2ZNeftATEeRfzAl4LYekASI0k1Jao9Ob1T6JcE0fW8BlhNMRfpHdFkWkaQSYGT16egULhmI801rSS2BMNWBypGsrA4LN1UevwcZUdh9SVJKEH9HKIvkrHZuZeRfNNnntQ==",
+    "modulusOld": "jCUivUA+j6pBvrz49IreCBJLt774c78K+4qaQflaQakPPBM/1zn7W7/CXkYSocMQaSQd1+ioDTAO/T69hhNoGq6O5sjbaMq9dsSB4yxiUz7Zdzqfyu7Sk+9FExArwYKwcycOjdD8iMJ4CmjhQ3H3dn0/c9fLnsFLQXy14urJv52TAzLM+iOC8vK2u8Se0ryM7fZ/Usu2VtxKWq7ybYrHI2ZNeftATEeRfzAl4LYekASI0k1Jao9Ob1T6JcE0fW8BlhNMRfpHdFkWkaQSYGT16egULhmI801rSS2BMNWBypGsrA4LN1UevwcZUdh9SVJKEH9HKIvkrHZuZeRfNNnntQ==",
+    "exponent": 65537,
+    "exponentOld": 65537
+  },
+  "queue": {
+    "type": "rabbitmq"
+  },
+  "storage": {
+      "fs": {
+        "secretString": "6prW6nOkvHQ4Oxg9mNSb",
+        "endpoint": "http://172.18.127.227:9000",
+        "accessKeyId": "YEXbqjnJ64BGEQqiMKKk",
+        "secretAccessKey": "VateaQYVo9oabIpYrC7WRj3s1vL1xz9xNYJMXxf5",
+        "urlExpires": 60480,
+        "bucketName": "onlyoffice-documents",
+        "storageFolderName": "files",
+        "externalHost": "http://172.18.127.227:8000"
+      }
+    }
+    
+}
